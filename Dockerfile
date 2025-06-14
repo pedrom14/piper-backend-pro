@@ -1,42 +1,51 @@
 FROM python:3.10-bullseye
 
-# Variável para deixar o ambiente não interativo
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Atualiza o sistema e instala dependências nativas que o Piper precisa
+# Instalar dependências de sistema para build do Piper
 RUN apt-get update && apt-get install -y \
     curl \
     unzip \
     sox \
     espeak-ng-data \
-    libgomp1 \
+    build-essential \
+    cmake \
+    git \
+    libespeak-ng-dev \
     libatomic1 \
-    libstdc++6 \
+    libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Cria diretório de trabalho
+# Definir diretório de trabalho
 WORKDIR /app
 
-# Baixa e extrai o Piper diretamente dentro do /app
-RUN curl -L https://github.com/rhasspy/piper/releases/latest/download/piper_linux_x86_64.tar.gz -o piper.tar.gz && \
-    tar -xzf piper.tar.gz && \
-    rm piper.tar.gz
+# Clonar o código-fonte do Piper
+RUN git clone https://github.com/rhasspy/piper.git
 
-# Permissão de execução do binário piper
-RUN chmod +x /app/piper
+# Compilar o Piper (versão release)
+WORKDIR /app/piper
+RUN cmake -B build && cmake --build build -j $(nproc)
 
-# Copia e instala os requisitos python
+# Voltar ao diretório do app
+WORKDIR /app
+
+# Copiar dependências Python
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia os arquivos restantes
+# Copiar o restante do projeto
 COPY . .
 
-# Porta padrão do app Flask
+# Copiar o binário compilado para a raiz do app
+RUN cp /app/piper/build/piper /app/piper
+
+# Dar permissão de execução
+RUN chmod +x /app/piper
+
+# Expõe a porta
 EXPOSE 5000
 
-# Comando para iniciar o servidor
+# Comando de inicialização
 CMD ["python", "app.py"]
-
 
 
