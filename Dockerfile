@@ -2,7 +2,6 @@ FROM python:3.10-bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Instalar dependências de sistema para build do Piper
 RUN apt-get update && apt-get install -y \
     curl \
     unzip \
@@ -16,6 +15,10 @@ RUN apt-get update && apt-get install -y \
     cmake \
     git \
     && rm -rf /var/lib/apt/lists/*
+
+# Adicionar o arquivo phontab manualmente
+RUN mkdir -p /usr/share/espeak-ng-data && \
+    curl -o /usr/share/espeak-ng-data/phontab https://raw.githubusercontent.com/espeak-ng/espeak-ng/master/phontab
 
 WORKDIR /app
 
