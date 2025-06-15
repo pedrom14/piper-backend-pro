@@ -18,10 +18,9 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Clone e build do Piper
-RUN git clone https://github.com/rhasspy/piper.git && \
+# Clone do repositório correto e build do Piper
+RUN git clone https://github.com/piper-tts/piper.git && \
     cd piper && \
-    git checkout v1.2.0 && \
     cmake -B build && cmake --build build -j $(nproc) && \
     cp build/piper /app/piper && \
     chmod +x /app/piper && \
@@ -35,6 +34,3 @@ COPY . .
 EXPOSE 5000
 
 CMD ["python", "app.py"]
-
-
-
