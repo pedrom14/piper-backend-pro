@@ -2,7 +2,6 @@ FROM python:3.10-bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Dependências de sistema
 RUN apt-get update && apt-get install -y \
     curl \
     unzip \
@@ -18,7 +17,6 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Clone do repositório correto e build do Piper
 RUN git clone https://github.com/piper-tts/piper.git && \
     cd piper && \
     cmake -B build && cmake --build build -j $(nproc) && \
