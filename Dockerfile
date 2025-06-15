@@ -1,30 +1,53 @@
-FROM python:3.10-bullseye
+# Stage 1: Compilar o Piper
+FROM python:3.10-bullseye AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Instalar dependências mínimas
 RUN apt-get update && apt-get install -y \
+    git \
+    build-essential \
+    cmake \
+    libespeak-ng-dev \
+    libatomic1 \
+    libgomp1 \
     curl \
     unzip \
     sox \
-    libatomic1 \
-    libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Baixar binário oficial existente (v1.0.0, funciona perfeitamente para seu caso)
-RUN curl -L -o piper.tar.gz https://github.com/rhasspy/piper/releases/download/v1.0.0/piper_linux_x86_64.tar.gz \
-    && tar -xzf piper.tar.gz \
-    && mv piper /app/piper \
-    && chmod +x /app/piper \
-    && rm -rf piper.tar.gz
+# Clonar o Piper
+RUN git clone https://github.com/rhasspy/piper.git
+
+WORKDIR /app/piper
+
+# Compilar o Piper com suporte a ONNX, sem AVX (compatível com qualquer CPU)
+RUN cmake -DWITH_ESPEAK=OFF -B build && cmake --build build -j $(nproc)
+
+# Stage 2: Montar a imagem final leve
+FROM python:3.10-bullseye
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    libatomic1 \
+    libgomp1 \
+    sox \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copiar o binário compilado do Piper
+COPY --from=builder /app/piper/build/piper /app/piper
+RUN chmod +x /app/piper
 
 # Copiar dependências Python
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar seu código
+# Copiar o restante do código
 COPY . .
 
 EXPOSE 5000
