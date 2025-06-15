@@ -13,12 +13,12 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Baixar binário estático oficial do Piper (substitua pela versão mais recente se quiser)
-RUN curl -L -o piper.tar.gz https://github.com/rhasspy/piper/releases/download/v1.2.0/piper_linux_x86_64.tar.gz \
+# Baixar binário oficial do Piper (com URL corrigida!)
+RUN curl -L -o piper.tar.gz https://github.com/rhasspy/piper/releases/download/v1.2.0/piper-linux-x86_64.tar.gz \
     && tar -xzf piper.tar.gz \
-    && mv piper_linux_x86_64/piper /app/piper \
+    && mv piper /app/piper \
     && chmod +x /app/piper \
-    && rm -rf piper.tar.gz piper_linux_x86_64
+    && rm -rf piper.tar.gz
 
 # Copiar dependências Python
 COPY requirements.txt requirements.txt
@@ -30,3 +30,4 @@ COPY . .
 EXPOSE 5000
 
 CMD ["python", "app.py"]
+
