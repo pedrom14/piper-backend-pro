@@ -8,8 +8,9 @@ app = Flask(__name__)
 CORS(app)
 
 # URLs de onde baixar seus arquivos de voz
-ONNX_URL = "https://pub-ce3bb4b09b4347da9e4835d744965af1.r2.dev/pt_BR-edresson-low.onnx"
+ONNX_URL = "https://pub-ce3bb4b09b4347da9e4835d744965af1.r2.dev/pt_BR-edresson-low-int8.onnx"
 JSON_URL = "https://pub-ce3bb4b09b4347da9e4835d744965af1.r2.dev/pt_BR-edresson-low.onnx.json"
+
 
 MODEL_DIR = "models/ptBR"
 MODEL_PATH = os.path.join(MODEL_DIR, "pt_BR-edresson-low.onnx")
