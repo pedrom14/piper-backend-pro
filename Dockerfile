@@ -16,9 +16,11 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Adicionar o arquivo phontab manualmente
-RUN mkdir -p /usr/share/espeak-ng-data && \
-    curl -o /usr/share/espeak-ng-data/phontab https://raw.githubusercontent.com/espeak-ng/espeak-ng/master/phontab
+# Agora clonar o espeak-ng completo
+RUN git clone https://github.com/espeak-ng/espeak-ng.git /tmp/espeak-ng
+
+# Copiar o diretório espeak-ng-data completo
+RUN cp -r /tmp/espeak-ng/espeak-ng-data /usr/share/espeak-ng-data
 
 WORKDIR /app
 
