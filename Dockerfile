@@ -13,8 +13,8 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Baixar binário oficial do Piper (com URL corrigida!)
-RUN curl -L -o piper.tar.gz https://github.com/rhasspy/piper/releases/download/v1.2.0/piper-linux-x86_64.tar.gz \
+# Baixar binário oficial existente (v1.0.0, funciona perfeitamente para seu caso)
+RUN curl -L -o piper.tar.gz https://github.com/rhasspy/piper/releases/download/v1.0.0/piper_linux_x86_64.tar.gz \
     && tar -xzf piper.tar.gz \
     && mv piper /app/piper \
     && chmod +x /app/piper \
@@ -30,4 +30,3 @@ COPY . .
 EXPOSE 5000
 
 CMD ["python", "app.py"]
-
