@@ -40,7 +40,8 @@ COPY . .
 RUN cp /app/piper/build/piper /app/piper
 
 # Dar permissão de execução
-RUN chmod +x /app/piper
+RUN chmod +x /app/piper/piper
+
 
 # Expõe a porta
 EXPOSE 5000
