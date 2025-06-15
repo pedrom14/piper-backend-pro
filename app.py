@@ -45,7 +45,7 @@ def tts():
     output_path = 'output.wav'
 
     command = [
-        '/app/piper',
+        '/app/piper/piper',
         '--model', MODEL_PATH,
         '--config', CONFIG_PATH,
         '--output_file', output_path,
