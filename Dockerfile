@@ -62,13 +62,12 @@ COPY --from=builder /build/piper/build/libpiper_phonemize.so* /usr/local/lib/
 COPY --from=builder /usr/lib/libonnxruntime.so.* /usr/local/lib/
 RUN chmod +x /app/piper && ldconfig
 
+ENV LD_LIBRARY_PATH=/usr/local/lib
 
 # Copia os arquivos de voz
 COPY pt_BR-edresson-low.onnx .
 COPY pt_BR-edresson-low.onnx.json .
 
-# Permissões de execução
-RUN chmod +x /app/piper && ldconfig
 
 EXPOSE 5000
 CMD ["python", "app.py"]
