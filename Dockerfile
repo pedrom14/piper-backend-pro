@@ -60,6 +60,8 @@ COPY app.py .
 COPY --from=builder /build/piper/build/piper /app/piper
 COPY --from=builder /build/piper/build/libpiper_phonemize.so* /usr/local/lib/
 COPY --from=builder /usr/lib/libonnxruntime.so.* /usr/local/lib/
+
+RUN ln -s /usr/local/lib/libpiper_phonemize.so /usr/local/lib/libpiper_phonemize.so.1
 RUN chmod +x /app/piper && ldconfig
 
 ENV LD_LIBRARY_PATH=/usr/local/lib
