@@ -18,7 +18,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
-COPY piper .                          
+COPY piper . 
+COPY libpiper_phonemize.so.1 /usr/local/lib/
+RUN ldconfig
 COPY pt_BR-edresson-low.onnx .
 COPY pt_BR-edresson-low.onnx.json .
 
