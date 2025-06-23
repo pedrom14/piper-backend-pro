@@ -9,7 +9,7 @@ CORS(app)
 
 @app.route('/tts', methods=['POST'])
 def tts():
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     texto = data.get('text', '')
     voice = 'pt_BR-edresson-low'
     
