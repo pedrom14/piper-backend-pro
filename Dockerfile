@@ -58,7 +58,6 @@ COPY app.py .
 
 # Copia binário do Piper e libs necessárias
 COPY --from=builder /build/piper/build/piper /app/piper
-COPY --from=builder /build/piper/build/lib/libpiper_phonemize.so.* /usr/local/lib/
 COPY --from=builder /usr/lib/libonnxruntime.so.* /usr/local/lib/
 
 # Copia os arquivos de voz
