@@ -3,7 +3,7 @@ FROM debian:bookworm AS builder
 
 WORKDIR /build
 
-# Instala dependências para compilar o Piper
+# Instala dependências para compilar o Piper + patchelf
 RUN apt-get update && apt-get install -y \
   git \
   cmake \
@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y \
   libx11-xcb-dev \
   libpulse-dev \
   libpcaudio-dev \
+  patchelf \
   && rm -rf /var/lib/apt/lists/*
 
 # Clona o Piper
@@ -30,12 +31,15 @@ RUN git clone https://github.com/rhasspy/piper.git
 WORKDIR /build/piper
 RUN cmake -B build && cmake --build build -j$(nproc)
 
-# Etapa 2: Container final
+# Corrige o binário para procurar libs em /usr/local/lib
+RUN patchelf --set-rpath /usr/local/lib build/piper
+
+# Etapa 2: Imagem final
 FROM python:3.10-slim
 
 WORKDIR /app
 
-# Instala bibliotecas necessárias para rodar o Piper
+# Instala libs de runtime
 RUN apt-get update && apt-get install -y \
   sox \
   espeak-ng-data \
@@ -46,14 +50,13 @@ RUN apt-get update && apt-get install -y \
   libpulse0 \
   libpcaudio0 \
   libcurl4 \
-  && ln -s /usr/lib/x86_64-linux-gnu/libespeak-ng.so.1 /usr/local/lib/libespeak-ng.so.1 \
   && rm -rf /var/lib/apt/lists/*
 
 # Instala dependências Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia o app
+# Copia código
 COPY app.py .
 
 # Copia binário do Piper e libs necessárias
@@ -61,16 +64,14 @@ COPY --from=builder /build/piper/build/piper /app/piper
 COPY --from=builder /build/piper/build/libpiper_phonemize.so* /usr/local/lib/
 COPY --from=builder /usr/lib/libonnxruntime.so.* /usr/local/lib/
 
-RUN ln -s /usr/local/lib/libpiper_phonemize.so /usr/local/lib/libpiper_phonemize.so.1
+# Permissão e linkagem
 RUN chmod +x /app/piper && ldconfig
 
-ENV LD_LIBRARY_PATH=/usr/local/lib
-
-# Copia os arquivos de voz
+# Copia arquivos de voz
 COPY pt_BR-edresson-low.onnx .
 COPY pt_BR-edresson-low.onnx.json .
 
-
+# Exposição e execução
 EXPOSE 5000
 CMD ["python", "app.py"]
 
