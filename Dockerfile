@@ -1,16 +1,16 @@
-FROM python:3.10-bullseye
-
-RUN apt-get update && apt-get install -y \
-    curl unzip sox espeak-ng-data libespeak-ng1 \
-    && apt-get clean
+FROM python:3.10-slim
 
 WORKDIR /app
 
-COPY . .
-
-RUN chmod +x piper
-
+COPY requirements.txt .
 RUN pip install -r requirements.txt
+
+COPY app.py .
+COPY piper .           # <- Executável compilado
+COPY pt_BR-edresson-low.onnx .
+COPY pt_BR-edresson-low.onnx.json .
+
+RUN chmod +x /app/piper
 
 CMD ["python", "app.py"]
 
