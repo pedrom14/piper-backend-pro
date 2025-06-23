@@ -7,40 +7,36 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-@app.route("/tts", methods=["POST"])
+@app.route('/tts', methods=['POST'])
 def tts():
     data = request.get_json()
-    text = data.get("text", "")
-    voice = "pt_BR-edresson-low"
+    texto = data.get('text', '')
+    voice = 'pt_BR-edresson-low'
     
-    if not text:
-        return jsonify({"error": "Texto vazio"}), 400
+    if not texto:
+        return jsonify({'error': 'Texto não fornecido'}), 400
 
-    output_wav = f"{uuid.uuid4()}.wav"
+    output_filename = f'output_{uuid.uuid4().hex}.wav'
+
     command = [
-        "./piper",
-        "--model", f"models/{voice}.onnx",
-        "--config", f"models/{voice}.onnx.json",
-        "--output_file", output_wav,
-        "--sentence_silence", "0.5",
-        "--phoneme_silence", "0.1",
-        "--length_scale", "1.0",
-        "--noise_scale", "0.667",
-        "--noise_w", "0.8",
-        "--text", text
+        './piper',
+        '--model', f'{voice}.onnx',
+        '--config', f'{voice}.onnx.json',
+        '--output_file', output_filename,
+        '--text', texto
     ]
 
     try:
         subprocess.run(command, check=True)
-        return send_file(output_wav, mimetype="audio/wav")
+        return send_file(output_filename, mimetype='audio/wav')
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'error': str(e)}), 500
     finally:
-        if os.path.exists(output_wav):
-            os.remove(output_wav)
+        if os.path.exists(output_filename):
+            os.remove(output_filename)
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
 
 
 
