@@ -18,7 +18,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
-COPY piper .                          # Executável compilado do Piper
+COPY piper .                          
 COPY pt_BR-edresson-low.onnx .
 COPY pt_BR-edresson-low.onnx.json .
 
