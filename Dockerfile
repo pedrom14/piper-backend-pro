@@ -24,14 +24,14 @@ RUN apt-get update && apt-get install -y \
   patchelf \
   && rm -rf /var/lib/apt/lists/*
 
-# Clona o Piper
+# Clona o repositório do Piper (engine TTS)
 RUN git clone https://github.com/rhasspy/piper.git
 
 # Compila o Piper
 WORKDIR /build/piper
 RUN cmake -B build && cmake --build build -j$(nproc)
 
-# Corrige o binário para procurar libs em /usr/local/lib
+# Corrige o binário para procurar bibliotecas em /usr/local/lib
 RUN patchelf --set-rpath /usr/local/lib build/piper
 
 # Etapa 2: Imagem final
@@ -39,7 +39,7 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Instala libs de runtime
+# Instala bibliotecas de runtime
 RUN apt-get update && apt-get install -y \
   sox \
   espeak-ng-data \
@@ -52,22 +52,22 @@ RUN apt-get update && apt-get install -y \
   libcurl4 \
   && rm -rf /var/lib/apt/lists/*
 
-# Instala dependências Python
+# Instala dependências do Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia código
+# Copia o código da aplicação
 COPY app.py .
 
-# Copia binário do Piper e libs necessárias
+# Copia o binário do Piper e as bibliotecas necessárias
 COPY --from=builder /build/piper/build/piper /app/piper
 COPY --from=builder /build/piper/build/libpiper_phonemize.so* /usr/local/lib/
 COPY --from=builder /usr/lib/libonnxruntime.so.* /usr/local/lib/
 
-# Permissão e linkagem
+# Ajusta permissões e executa linkagem
 RUN chmod +x /app/piper && ldconfig
 
-# Copia arquivos de voz
+# Copia os arquivos de voz
 COPY pt_BR-edresson-low.onnx .
 COPY pt_BR-edresson-low.onnx.json .
 
