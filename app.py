@@ -12,7 +12,7 @@ def tts():
     data = request.get_json(silent=True) or {}
     texto = data.get('text', '')
     voice = 'pt_BR-edresson-low'
-    
+
     if not texto:
         return jsonify({'error': 'Texto não fornecido'}), 400
 
@@ -37,6 +37,7 @@ def tts():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
 
 
 
